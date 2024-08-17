@@ -62,8 +62,7 @@ protobuf==5.27.3
 psutil==5.9.8
 PyInstaller==6.10.0
 pyOpenSSL==24.2.1
-PyQt4==4.11.4
-PyQt5==5.15.11
+
 pysqlcipher3==1.2.0
 python-dotenv==1.0.1
 python_calamine==0.2.3
