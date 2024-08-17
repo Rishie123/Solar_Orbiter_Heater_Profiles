@@ -106,19 +106,44 @@ def update_graph(selected_dates, selected_sensor):
         # Add a black dashed vertical line at Time == 60 seconds for both plots
         # Add the legend for the '60 s' line only once
         if i == 0:  # Only add to the legend for the first date
+            # Line for the upper plot
             fig.add_trace(
                 go.Scatter(
                     x=[60, 60],
-                    y=[selected_day[f'{components[0]}_pred_orig'].min(), selected_day[f'{components[0]}_pred_orig'].max()],
+                    y=[selected_day[f'{components[0]}_orig'].min(), selected_day[f'{components[0]}_orig'].max()],
                     mode='lines',
                     line=dict(color='black', dash='dash'),  # Black dashed line
                     name='60 s',  # Add '60 s' to the legend
                     showlegend=True  # Show legend for this trace
                 ),
+                row=1, col=i+1
+            )
+
+            # Line for the lower plot
+            fig.add_trace(
+                go.Scatter(
+                    x=[60, 60],
+                    y=[selected_day[f'{components[0]}_pred_orig'].min(), selected_day[f'{components[0]}_pred_orig'].max()],
+                    mode='lines',
+                    line=dict(color='black', dash='dash'),
+                    name='60 s',
+                    showlegend=False  # No legend entry for the duplicate line
+                ),
                 row=2, col=i+1
             )
         else:
-            # For other dates, add the line without showing it in the legend
+            # For other dates, add the lines without showing them in the legend
+            fig.add_trace(
+                go.Scatter(
+                    x=[60, 60],
+                    y=[selected_day[f'{components[0]}_orig'].min(), selected_day[f'{components[0]}_orig'].max()],
+                    mode='lines',
+                    line=dict(color='black', dash='dash'),
+                    showlegend=False  # No legend entry for the duplicate line
+                ),
+                row=1, col=i+1
+            )
+
             fig.add_trace(
                 go.Scatter(
                     x=[60, 60],
@@ -150,25 +175,25 @@ def update_graph(selected_dates, selected_sensor):
 
     # Update y-axes titles and layout
     fig.update_yaxes(
-        title_text="No Machine Learning",
+        title_text="3-Day avg.<br> Magnetic Field (nT)",
         row=1, col=1,
-        title_font=dict(size=22),
-        tickfont=dict(size=20)
+        title_font=dict(size=20),
+        tickfont=dict(size=18)
     )
     fig.update_yaxes(
-        title_text="Machine Learning",  
+        title_text="Magnetic Field (nT) with<br> Machine Learning",   
         row=2, col=1,
-        title_font=dict(size=23),
-        tickfont=dict(size=20)
+        title_font=dict(size=20),
+        tickfont=dict(size=18)
     )
     fig.update_layout(
         height=600,
         title_text=f"Heater Profiles on perihelion dates, for {selected_sensor} along R, T and N directions with & without Machine Learning",
         title_font=dict(size=30),
         font=dict(size=14),
-         legend=dict(
-        font=dict(size=30)  # Increase legend font size
-    )
+        legend=dict(
+            font=dict(size=30)  # Increase legend font size
+        )
     )
 
     # Increase font size for subplot titles
