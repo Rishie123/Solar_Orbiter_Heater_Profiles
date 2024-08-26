@@ -51,7 +51,7 @@ def update_graph(selected_dates, selected_sensor):
     data = pd.read_csv(data_file)
 
     # Update main title based on selected sensor
-    main_title = f"Magnetic Field along R, T, N for {selected_sensor} on Perihelion Dates with & without Machine Learning.<br>Time starts at -1 seconds, therefore peak at 59 seconds. "
+    main_title = f"Magnetic Field along R, T, N for {selected_sensor} on Perihelion Dates with & without Machine Learning."+"<br>Time starts at -1 seconds, therefore peak at 59 seconds. "
 
     if not selected_dates:
         return main_title, go.Figure(), [], [{'label': date, 'value': date} for date in data['Date'].unique()]
