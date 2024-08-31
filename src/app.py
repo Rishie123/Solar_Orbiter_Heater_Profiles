@@ -4,6 +4,7 @@ from dash.dependencies import Input, Output
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import pandas as pd
+import numpy as np
 
 # Initialize the app
 app = dash.Dash(__name__)
@@ -37,6 +38,19 @@ app.layout = html.Div([
     dcc.Graph(id='magnetic-field-graph'),
     html.Div(id='images-container', style={'display': 'flex', 'justify-content': 'center', 'align-items': 'center', 'flex-direction': 'column'})
 ])
+
+def apply_convergence_to_zero(series, time_series):
+    # Find the indices corresponding to the last 50 seconds
+    cutoff_time = time_series.max() - 50
+    mask = time_series >= cutoff_time
+    
+    # Apply a linear scale to these points to bring them to zero
+    num_points = mask.sum()  # Number of points in the last 50 seconds
+    if num_points > 0:
+        scale_factors = np.linspace(1, 0, num_points)
+        series[mask] = series[mask] * scale_factors
+    
+    return series
 
 @app.callback(
     [Output('main-title', 'children'),
@@ -76,15 +90,16 @@ def update_graph(selected_dates, selected_sensor):
             selected_day = data[data['hp_id'] == row.hp_id]
             break  # Assuming we plot only the first sample per date
 
-        # Apply convergence to zero for the last 100 readings
-        for component in components:
-            selected_day[f'{component}_orig'] = apply_convergence_to_zero(selected_day[f'{component}_orig'])
-            selected_day[f'{component}_pred_orig'] = apply_convergence_to_zero(selected_day[f'{component}_pred_orig'])
-
         for j, component in enumerate(components):
             showlegend = i == 0  # Show legend only for the first column
 
-            # Upper plot
+            # Apply convergence to zero for the predicted data in the last 50 seconds
+            selected_day[f'{component}_pred_orig'] = apply_convergence_to_zero(
+                selected_day[f'{component}_pred_orig'],
+                selected_day['Time']
+            )
+
+            # Upper plot (Original Data)
             fig.add_trace(
                 go.Scatter(
                     x=selected_day['Time'],
@@ -96,7 +111,7 @@ def update_graph(selected_dates, selected_sensor):
                 row=1, col=i+1
             )
 
-            # Lower plot
+            # Lower plot (Predicted Data)
             fig.add_trace(
                 go.Scatter(
                     x=selected_day['Time'],
@@ -109,22 +124,19 @@ def update_graph(selected_dates, selected_sensor):
             )
 
         # Add a black dashed vertical line at Time == 60 seconds for both plots
-        # Add the legend for the '60 s' line only once
         if i == 0:  # Only add to the legend for the first date
-            # Line for the upper plot
             fig.add_trace(
                 go.Scatter(
-                    x=[59, 59],
+                    x=[60, 60],
                     y=[selected_day[f'{components[0]}_orig'].min(), selected_day[f'{components[0]}_orig'].max()],
                     mode='lines',
-                    line=dict(color='black', dash='dash'),  # Black dashed line
-                    name='60 s',  # Add '60 s' to the legend
-                    showlegend=True  # Show legend for this trace
+                    line=dict(color='black', dash='dash'),
+                    name='59 s',
+                    showlegend=True
                 ),
                 row=1, col=i+1
             )
 
-            # Line for the lower plot
             fig.add_trace(
                 go.Scatter(
                     x=[60, 60],
@@ -132,19 +144,18 @@ def update_graph(selected_dates, selected_sensor):
                     mode='lines',
                     line=dict(color='black', dash='dash'),
                     name='60 s',
-                    showlegend=False  # No legend entry for the duplicate line
+                    showlegend=False
                 ),
                 row=2, col=i+1
             )
         else:
-            # For other dates, add the lines without showing them in the legend
             fig.add_trace(
                 go.Scatter(
                     x=[60, 60],
                     y=[selected_day[f'{components[0]}_orig'].min(), selected_day[f'{components[0]}_orig'].max()],
                     mode='lines',
                     line=dict(color='black', dash='dash'),
-                    showlegend=False  # No legend entry for the duplicate line
+                    showlegend=False
                 ),
                 row=1, col=i+1
             )
@@ -155,7 +166,7 @@ def update_graph(selected_dates, selected_sensor):
                     y=[selected_day[f'{components[0]}_pred_orig'].min(), selected_day[f'{components[0]}_pred_orig'].max()],
                     mode='lines',
                     line=dict(color='black', dash='dash'),
-                    showlegend=False  # No legend entry for the duplicate line
+                    showlegend=False
                 ),
                 row=2, col=i+1
             )
@@ -197,24 +208,15 @@ def update_graph(selected_dates, selected_sensor):
         title_font=dict(size=30),
         font=dict(size=14),
         legend=dict(
-            font=dict(size=30)  # Increase legend font size
+            font=dict(size=30)
         ),
         hovermode=False  # Disable hover interactions
     )
 
-    # Increase font size for subplot titles
     for annotation in fig['layout']['annotations']:
         annotation['font'] = dict(size=20)
 
     return main_title, fig, [{'label': date, 'value': date} for date in data['Date'].unique()]
-
-def apply_convergence_to_zero(series):
-    # Ensure the series has at least 100 points
-    if len(series) >= 300:
-        # Apply linear convergence to the last 100 points
-        for i in range(1, 51):
-            series.iloc[-i] *= (50 - i) / 50
-    return series
 
 if __name__ == '__main__':
     app.run_server(debug=True, port=9020)
