@@ -109,11 +109,11 @@ def update_graph(selected_dates, selected_sensor):
             # Line for the upper plot
             fig.add_trace(
                 go.Scatter(
-                    x=[59, 59],
+                    x=[60, 60],
                     y=[selected_day[f'{components[0]}_orig'].min(), selected_day[f'{components[0]}_orig'].max()],
                     mode='lines',
                     line=dict(color='black', dash='dash'),  # Black dashed line
-                    name='59 s',  # Add '60 s' to the legend
+                    name='60 s',  # Add '60 s' to the legend
                     showlegend=True  # Show legend for this trace
                 ),
                 row=1, col=i+1
