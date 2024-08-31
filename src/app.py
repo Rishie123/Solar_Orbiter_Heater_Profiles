@@ -193,7 +193,8 @@ def update_graph(selected_dates, selected_sensor):
         font=dict(size=14),
         legend=dict(
             font=dict(size=30)  # Increase legend font size
-        )
+        ),
+        hovermode=False  # Disable hover interactions
     )
 
     # Increase font size for subplot titles
