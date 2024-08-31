@@ -76,6 +76,11 @@ def update_graph(selected_dates, selected_sensor):
             selected_day = data[data['hp_id'] == row.hp_id]
             break  # Assuming we plot only the first sample per date
 
+        # Apply convergence to zero for the last 100 readings
+        for component in components:
+            selected_day[f'{component}_orig'] = apply_convergence_to_zero(selected_day[f'{component}_orig'])
+            selected_day[f'{component}_pred_orig'] = apply_convergence_to_zero(selected_day[f'{component}_pred_orig'])
+
         for j, component in enumerate(components):
             showlegend = i == 0  # Show legend only for the first column
 
@@ -109,7 +114,7 @@ def update_graph(selected_dates, selected_sensor):
             # Line for the upper plot
             fig.add_trace(
                 go.Scatter(
-                    x=[60, 60],
+                    x=[59, 59],
                     y=[selected_day[f'{components[0]}_orig'].min(), selected_day[f'{components[0]}_orig'].max()],
                     mode='lines',
                     line=dict(color='black', dash='dash'),  # Black dashed line
@@ -202,6 +207,14 @@ def update_graph(selected_dates, selected_sensor):
         annotation['font'] = dict(size=20)
 
     return main_title, fig, [{'label': date, 'value': date} for date in data['Date'].unique()]
+
+def apply_convergence_to_zero(series):
+    # Ensure the series has at least 100 points
+    if len(series) >= 300:
+        # Apply linear convergence to the last 100 points
+        for i in range(1, 51):
+            series.iloc[-i] *= (50 - i) / 50
+    return series
 
 if __name__ == '__main__':
     app.run_server(debug=True, port=9020)
