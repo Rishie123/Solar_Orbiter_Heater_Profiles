@@ -4,3 +4,4 @@ numpy
 plotly==5.21.0
 scikit-learn
 gunicorn
+flask-caching
