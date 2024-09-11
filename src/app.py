@@ -161,9 +161,10 @@ def update_graph(selected_dates, selected_sensor):
     fig.update_yaxes(title_text="Magnetic Field (nT)<br>with Machine Learning", row=2, col=1)
     fig.update_yaxes(title_text="Predicted Ambient<br>Magnetic Field (nT)", row=3, col=1)
 
-    # Update x-axes to show time on all rows and ensure ticks are displayed
+    # Update x-axes to show time on all rows and columns and ensure ticks are displayed
     for row in range(1, 4):
-        fig.update_xaxes(title_text="Time (seconds)", showticklabels=True, row=row, col=1)
+        for col in range(1, len(selected_dates) + 1):
+            fig.update_xaxes(title_text="Time (seconds)", showticklabels=True, row=row, col=col)
 
     fig.update_layout(
         height=900,
