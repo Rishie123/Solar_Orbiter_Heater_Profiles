@@ -11,7 +11,7 @@ app = dash.Dash(__name__)
 server = app.server  # This line ensures the app can be deployed
 
 # We load the initial dataset, defaulting to IBS data
-data_file = 'IBS-Data.csv'
+data_file = 'IBS-Data2.csv'
 data = pd.read_csv(data_file, low_memory=False)
 
 # We convert specific columns to numeric, coercing any errors into NaN values
@@ -75,7 +75,7 @@ def apply_convergence_to_zero(series, time_series):
      Input('sensor-radio', 'value')]
 )
 def update_graph(selected_dates, selected_sensor):
-    data_file = 'IBS-Data.csv' if selected_sensor == 'IBS' else 'OBS-Data.csv'
+    data_file = 'IBS-Data2.csv' if selected_sensor == 'IBS' else 'OBS-Data.csv'
     data = pd.read_csv(data_file, low_memory=False)
     data['R_orig'] = pd.to_numeric(data['R_orig'], errors='coerce')
     data['T_orig'] = pd.to_numeric(data['T_orig'], errors='coerce')
